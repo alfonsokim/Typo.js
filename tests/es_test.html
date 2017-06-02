@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <script type="text/javascript" src="lib/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="../typo/typo.js"></script>
+        <script type="text/javascript">
+
+            function readTextFile(file)
+            {
+                var rawFile = new XMLHttpRequest();
+                var allText;
+                rawFile.open("GET", file, false);
+                rawFile.onreadystatechange = function ()
+                {
+                    if(rawFile.readyState === 4)
+                    {
+                        if(rawFile.status === 200 || rawFile.status == 0)
+                        {
+                            allText = rawFile.responseText;
+                        }
+                    }
+                }
+                rawFile.send(null);
+                return allText;
+            }
+
+            $(function() {
+
+                var affData = readTextFile("dictionaries/es_ES/es_ANY.aff");
+                var wordData = readTextFile("dictionaries/es_ES/es_ANY.dic");       
+
+                var dictionary = new Typo("es_ES", affData, wordData);
+                $('#test').on('submit', function(e) { //use on if jQuery 1.7+
+                    e.preventDefault();  //prevent form from submitting
+                    console.log(dictionary.suggest("repoductor", 1)); 
+                });
+            });
+
+        </script>
+    </head>
+    <body>
+        <form id="test" name="test">
+            <input type="text"></input>
+            <input type="submit"></input>
+        </form>
+    </body>
+</html>

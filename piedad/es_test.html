@@ -1,0 +1,66 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <script type="text/javascript" src="lib/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="lib/typo.js"></script>
+        <script type="text/javascript">
+
+            function readTextFile(file)
+            {
+                var rawFile = new XMLHttpRequest();
+                var allText;
+                rawFile.open("GET", file, false);
+                rawFile.onreadystatechange = function ()
+                {
+                    if(rawFile.readyState === 4)
+                    {
+                        if(rawFile.status === 200 || rawFile.status == 0)
+                        {
+                            allText = rawFile.responseText;
+                        }
+                    }
+                }
+                rawFile.send(null);
+                return allText;
+            }
+
+            $(function() {
+
+                $('#num_suggestions').val("1");
+                $('#search').val("");
+                $('#suggestions').val("");
+
+                var affData = readTextFile("dictionaries/es_ES/es_ANY.aff");
+                var wordData = readTextFile("dictionaries/es_ES/es_ANY.dic");       
+                var dictionary = new Typo("es_ES", affData, wordData);
+
+                $('#test').on('submit', function(e) { 
+                    e.preventDefault();  
+                    var num_suggestions = 1;
+                    try{
+                        num_suggestions = parseInt($("#num_suggestions").val(), 10);
+                    }catch(err) {}
+                    var search = $('#search').val();
+                    var suggestions = dictionary.suggest(search, num_suggestions || 1);
+                    $('#suggestions').val(suggestions);
+                });
+
+            });
+
+        </script>
+    </head>
+    <body>
+        <form id="test" name="test">
+            <label for="num_suggestions">Numero de sugerencias:</label>
+            <input type="text" name="num_suggestions" id="num_suggestions"></input>
+            <br/>        
+            <label for="search">Buscar:</label>
+            <input type="text" name="search" id="search"></input>
+            <br/>
+            <input type="submit"></input>
+            <br/>
+            <label for="suggestions">Sugerencia:</label>
+            <input type="text" name="suggestions" id="suggestions" disabled readonly size="50"></input>
+        </form>
+    </body>
+</html>
