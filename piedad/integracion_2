@@ -1,0 +1,91 @@
+  {% comment %}
+    <!-- =================== TYPOS >>>>>>>>>>>>>>>>>>>> -->
+  {% endcomment %}
+  
+  {{ 'typo.js' | asset_url | script_tag }}
+  
+  <script>
+    function readTextFile(file)
+    {
+      var rawFile = new XMLHttpRequest();
+      var allText;
+      rawFile.open("GET", file, false);
+      rawFile.onreadystatechange = function ()
+      {
+        if(rawFile.readyState === 4)
+        {
+          if(rawFile.status === 200 || rawFile.status == 0)
+          {
+            allText = rawFile.responseText;
+          }
+        }
+      }
+      rawFile.send(null);
+      return allText;
+    }
+  </script>
+  
+  <script type="text/javascript">
+    jQuery(function() {
+      
+      var self = this;
+      
+      var affData = readTextFile("{{ 'es_ANY.aff' | asset_url }}");
+      var wordData = readTextFile("{{ 'es_ANY.dic' | asset_url }}");   
+      var dictionary = new Typo("es_ES", affData, wordData);
+      
+      jQuery('[name="search-bar-form"]').on('submit', function(e) { 
+        
+        e.preventDefault ? e.preventDefault() : e.returnValue = false;
+        
+        var searchField = jQuery('[name="q"]');
+        var words = searchField.val();
+        var typosSearch = "";
+        
+        if (! words){
+          var formData = jQuery('[name="search-bar-form"]').serialize().split("&");
+          
+          for(var key in formData){
+            var values = formData[key].split("=");
+            if (!words && values[0] === "q" && values[1]){
+              words = values[1];
+            }
+          } // for
+          
+        } // if nada en q
+        
+        jQuery.each(words.split(" "), function(i, v) {
+          
+          if (v != ""){
+            var suggestion = dictionary.suggest(v, 1);
+            if (suggestion.length === 1){
+              typosSearch = typosSearch + " " + suggestion;
+            } else {
+              typosSearch = typosSearch + " " + v;
+            }
+            
+          }
+        });
+        alert("words: [" + words + "], typosSearch: [" + typosSearch + "]");
+        
+        searchField.val("");
+        searchField.val(typosSearch);
+        this.submit();
+      });
+    });
+    
+  </script>
+  
+  {% comment %}
+  <script>
+    $(function() {
+      var affData = readTextFile("{{ 'es_ANY.aff' | asset_url }}");
+      var wordData = readTextFile("{{ 'es_ANY.dic' | asset_url }}");   
+      var dictionary = new Typo("es_ES", affData, wordData);
+      console.debug("anilo -> " + dictionary.suggest("anilo", 1));
+    });
+  </script>
+  {% endcomment %}
+  {% comment %}
+    <!-- <<<<<<<<<<<<<<<<<<< TYPOS =================== -->
+  {% endcomment %}

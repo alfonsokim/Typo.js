@@ -1,0 +1,71 @@
+  
+  {% comment %}
+    <!-- =================== TYPOS >>>>>>>>>>>>>>>>>>>> -->
+  {% endcomment %}
+  
+  {{ 'typo.js' | asset_url | script_tag }}
+  
+  <script>
+    function readTextFile(file)
+    {
+      var rawFile = new XMLHttpRequest();
+      var allText;
+      rawFile.open("GET", file, false);
+      rawFile.onreadystatechange = function ()
+      {
+        if(rawFile.readyState === 4)
+        {
+          if(rawFile.status === 200 || rawFile.status == 0)
+          {
+            allText = rawFile.responseText;
+          }
+        }
+      }
+      rawFile.send(null);
+      return allText;
+    }
+  </script>
+  
+  <script type="text/javascript">
+    jQuery(function() {
+      
+      var affData = readTextFile("{{ 'es_ANY.aff' | asset_url }}");
+      var wordData = readTextFile("{{ 'es_ANY.dic' | asset_url }}");   
+      var dictionary = new Typo("es_ES", affData, wordData);
+      
+      jQuery('[name="search-bar-form"]').on('submit', function(e) { 
+        
+        e.preventDefault ? e.preventDefault() : e.returnValue = false;
+        
+        var searchField = jQuery('[name="q"]');
+        var words = searchField.val().split(" ");
+        // alert(searchWords + " -> " + dictionary.suggest(searchWords, 1));
+        // jQuery(searchField).val('');
+        
+        var typosSearch = "";
+        
+        console.debug("words: " + words);
+        jQuery.each(words, function(i, v) {
+          console.debug("v: " + v);
+          typosSearch = typosSearch + " " + v + " " + dictionary.suggest(v, 1);
+        });
+        // alert("typosSearch: " + typosSearch);
+        
+        $(searchField).val(typosSearch);
+        
+        // var words = $(searchfield).val().split(" ");
+
+        // $(searchfield).val('');
+
+        // $.each(words, function(i, v) {
+        //   $(searchfield).val($(searchfield).val() + '*' + v + '* ');
+        // });
+        this.submit();
+      });
+    });
+    
+  </script>
+  
+  {% comment %}
+    <!-- <<<<<<<<<<<<<<<<<<< TYPOS =================== -->
+  {% endcomment %}
